@@ -1,0 +1,12 @@
+Table "session" {
+  "id" varchar(255) [pk, not null]
+  "user_id" varchar(255) [not null]
+  "expires_at" datetime [not null]
+}
+
+Table "user" {
+  "id" varchar(255) [pk, not null]
+  "age" int
+  "username" varchar(32) [unique, not null]
+  "password_hash" varchar(255) [not null]
+}

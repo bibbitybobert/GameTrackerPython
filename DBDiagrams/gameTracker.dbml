@@ -1,0 +1,67 @@
+Table "game" {
+  "id" int [pk, not null, increment]
+  "name" varchar(255) [not null]
+  "multiplayer" bit(1) [default: "b'0'"]
+  "singleplayer" bit(1) [default: "b'1'"]
+  "releasedate" datetime
+  "lastestupdate" datetime
+  "downloadSizeMb" float [default: 0]
+  "achievements" int [default: 0]
+  "controller" bit(1) [default: "b'0'"]
+  "mk" bit(1) [default: "b'1'"]
+}
+
+Table "gamelauncher" {
+  "gameId" int [not null]
+  "launcherId" int [not null]
+}
+
+Ref: gamelauncher.gameId > game.id
+Ref: gamelauncher.launcherId > launcher.id
+
+Table "gametags" {
+  "gameId" int [not null]
+  "tagId" int [not null]
+}
+
+Ref: gametags.gameId > game.id
+Ref: gametags.tagId > tag.id
+
+Table "launcher" {
+  "id" int [pk, not null, increment]
+  "name" varchar(255) [not null]
+}
+
+Table "session" {
+  "id" varchar(255) [pk, not null]
+  "userId" varchar(255) [not null]
+  "expiresAt" datetime [not null]
+}
+
+Ref: session.userId > user.id
+
+Table "tag" {
+  "id" int [pk, not null, increment]
+  "name" varchar(255) [not null]
+}
+
+Table "user" {
+  "id" varchar(255) [pk, not null]
+  "fName" varchar(30)
+  "lName" varchar(100)
+  "email" varchar(255) [unique, not null]
+  "passwordHash" varchar(255) [not null]
+}
+
+Table "usergame" {
+  "userId" varchar(255) [not null]
+  "gameId" int [not null]
+  "downloaded" bit(1) [default: "b'0'"]
+  "playtime" float [default: 0]
+  "lastPlayed" datetime
+  "boughtDate" datetime
+  "completedAchievements" int [default: 0]
+}
+
+Ref: usergame.userId > user.id
+Ref: usergame.gameId > game.id
