@@ -8,7 +8,7 @@ from API.Services.databaseContext import Base
 class User(Base):
     __tablename__ = 'user'
 
-    id = Column(String(255), primary_key=True, index=True)
+    id = Column(String(255), primary_key=True, index=True, unique=True)
     fName = Column(String(30))
     lName = Column(String(100))
     email = Column(String(255), unique=True, nullable=False)

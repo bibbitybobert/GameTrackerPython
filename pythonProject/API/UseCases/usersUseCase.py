@@ -8,6 +8,12 @@ class UsersUseCase:
     def get_user_by_id(self, user_id):
         return self._dataAccess.get_user_by_id(user_id)
 
+    def get_user_by_email(self, email):
+        user = self._dataAccess.get_user_by_email(email)
+        if user is not None:
+            return True, user
+        return False, None
+
     def get_all_users(self):
         return self._dataAccess.get_all_users()
 
@@ -20,8 +26,7 @@ class UsersUseCase:
         if user.passwordHash != hashed_pass:
             return False, {"error", "Incorrect Password"}
 
-        sessionToken, expiresAt = self._dataAccess.create_session(user)
-        return True, {sessionToken, expiresAt}
+        return True, user
 
     def register(self, firstName, lastName, email, password):
         existing_user = self._dataAccess.get_user_by_email(email)

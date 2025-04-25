@@ -1,5 +1,4 @@
 from flask import Blueprint, jsonify, request
-from sqlalchemy.testing.suite.test_reflection import users
 
 from API.UseCases.usersUseCase import UsersUseCase
 
@@ -24,15 +23,22 @@ def get_all_users():
         return jsonify(outList), 200
     return jsonify({'error': 'Unable to get all users'}), 500
 
+@user_bp.route('/email/<string:email>', methods=['GET'])
+def get_user_by_email(email):
+    success, user = usersUseCase.get_user_by_email(email)
+    if success:
+        return jsonify(user.to_dict()), 200
+    return jsonify({'error': 'User not found'}), 404
+
 @user_bp.route('/login', methods=['POST'])
 def login():
     data = request.get_json()
     email = data['email']
     password = data['password']
-    response, value = usersUseCase.login(email, password)
+    response, user = usersUseCase.login(email, password)
     if response:
-        return jsonify([{'sessionToken': value.pop()}, {'expiresAt': value.pop()}]), 200
-    return jsonify({'error': 'Unable to login'}), 500
+        return jsonify(user.to_dict()), 200
+    return jsonify({'error': 'Unable to login'}), 400
 
 
 @user_bp.route('/register', methods=['POST'])
@@ -43,10 +49,9 @@ def register_user():
     email = data['email']
     password = data['password']
 
-    (response, value) = usersUseCase.register(fName,lName, email, password)
+    response, newUser = usersUseCase.register(fName,lName, email, password)
     if response:
-        result = jsonify({'sessionToken': value.pop(), 'expiresAt': value.pop()}), 200
-        return result
+        return jsonify(newUser.to_dict()), 200
     return jsonify({'error': 'Unable to login'}), 500
 
 @user_bp.route('/validateSessionToken', methods=['POST'])
