@@ -22,3 +22,13 @@ class GameTagsUseCase:
             return False, "Unable to add new tag to game"
 
         return True, gameTag
+
+    def get_tags_for_game(self, gameId):
+        if not self.gameDataAccess.game_exists_by_id(gameId):
+            return False, "Game Does not exist"
+
+        tags = self.gameTagsDataAccess.get_tags_for_game(gameId)
+        if not tags:
+            return False, "Unable to get tags for game"
+
+        return True, tags

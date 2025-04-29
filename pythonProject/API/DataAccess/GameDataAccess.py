@@ -14,6 +14,30 @@ class GameDataAccess:
         finally:
             session.close()
 
+
+    def update_game(self, toUpdateGame: Game):
+        session = Session()
+        try:
+            dbGame = session.query(Game).filter_by(id=toUpdateGame.id).first()
+            if dbGame:
+                dbGame.name = toUpdateGame.name
+                dbGame.singleplayer = toUpdateGame.singleplayer
+                dbGame.multiplayer = toUpdateGame.multiplayer
+                dbGame.releaseDate = toUpdateGame.releaseDate
+                dbGame.latestUpdate = toUpdateGame.latestUpdate
+                dbGame.downloadSize = toUpdateGame.downloadSize
+                dbGame.achievements = toUpdateGame.achievements
+                dbGame.mk = toUpdateGame.mk
+                dbGame.controller = toUpdateGame.controller
+                session.commit()
+            return session.query(Game).filter_by(id=toUpdateGame.id).first()
+        except Exception as e:
+            print(e)
+            return False
+        finally:
+            session.close()
+
+
     def game_exists_by_id(self, gameId):
         session = Session()
         try:

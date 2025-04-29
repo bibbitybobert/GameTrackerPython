@@ -15,8 +15,24 @@ class GamesUseCase:
             return False, "Unable to create new game"
         return True, dbGame
 
+    def updateGame(self, toUpdateGame: Game):
+        if not self.dataAccess.get_game_by_id(toUpdateGame.id):
+            return False, "No Game with this Id exists"
+
+        dbGame = self.dataAccess.update_game(toUpdateGame)
+
+        if not dbGame:
+            return False, "Unable to update game"
+        return True, dbGame
+
     def get_game_by_name(self, game_name):
         game = self.dataAccess.get_game_by_name(game_name)
+        if not game:
+            return False, "Game Not Found"
+        return True, game
+
+    def get_game_by_id(self, game_id):
+        game = self.dataAccess.get_game_by_id(game_id)
         if not game:
             return False, "Game Not Found"
         return True, game

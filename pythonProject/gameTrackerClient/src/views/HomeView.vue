@@ -3,6 +3,7 @@
 		<h1 class="introduction">
 			Welcome to GameTracker
 		</h1>
+		<div class="s"></div>
 <!--		<button-->
 <!--				@click="LogOut"-->
 <!--				type="submit"-->
@@ -10,7 +11,7 @@
 <!--		>-->
 <!--				Sign Out-->
 <!--		</button>-->
-		<DataTable :value="games" :size="small">
+		<DataTable :value="games" :size="small" v-model:selection="selectedGame" selectionMode="single" dataKey="id" @rowSelect="OnRowSelect">
 			<Column field="name" header="Name" dataType="string" style="width: 20%"></Column>
 			<Column field="downloadSize" header="Download Size" dataType="float">
 				<template #body="{ data }">
@@ -60,8 +61,10 @@ import {game} from '@/lib/models/game.ts';
 import {ref} from 'vue';
 import {getAllGames} from '@/DataAccess/gameDataAccess.ts';
 import { useField } from 'vee-validate';
+import router from '@/router';
 
 const games = ref();
+const selectedGame = ref();
 
 onMounted(async () => {
 	games.value = await getAllGames();
@@ -79,9 +82,14 @@ const formatSize = (value) => {
 	return `${value} MB`
 }
 
+const OnRowSelect = (event) => {
+	var gameId = event.data.id;
+	router.push(`/edit/${gameId}`);
+}
+
 </script>
 
-<style>
+<style scoped>
 div{
 	display: flex;
 	flex-direction: column;

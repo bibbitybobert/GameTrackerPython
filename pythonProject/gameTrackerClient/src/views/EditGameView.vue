@@ -1,7 +1,7 @@
 <template>
 	<div>
 		<Toast/>
-		<h1>Add New Game</h1>
+		<h1>Update game {{gameName}}</h1>
 		<Form v-slot="$form" @submit="OnSubmit" id="newGameBox" :resolver="resolver" :initialvalues>
 			<InputText
 				class="inputGameName"
@@ -9,14 +9,15 @@
 				placeholder="Game Name"
 				v-model="gameName"
 				required
+				disabled
 			/>
 			<CheckboxGroup class="playerSupport">
 				<div class="flex-auto">
-					<Checkbox v-model="singleplayer" inputId="Singleplayer" value="singleplayer"/>
+					<Checkbox v-model="singleplayer" inputId="Singleplayer" value="singleplayer" binary disabled/>
 					<label for="Singleplayer">Singleplayer</label>
 				</div>
 				<div class="flex auto">
-					<Checkbox v-model="multiplayer" inputId="Multiplayer" value="multiplayer"/>
+					<Checkbox v-model="multiplayer" inputId="Multiplayer" value="multiplayer" binary disabled/>
 					<label for="Multiplayer">Multiplayer</label>
 				</div>
 			</CheckboxGroup>
@@ -30,6 +31,7 @@
 					placeholder="Release Date"
 					class="datePicker"
 					required
+					disabled
 				/>
 				<DatePicker
 					v-model="latestUpdate"
@@ -60,11 +62,11 @@
 			</div>
 			<CheckboxGroup class="peripheralSupport">
 				<div class="flex-auto">
-					<Checkbox v-model="mkSupport" inputId="mkSupport" value="mkSupport"/>
+					<Checkbox v-model="mkSupport" inputId="mkSupport" value="mkSupport" binary disabled/>
 					<label for="mkSupport">Mouse and Keyboard</label>
 				</div>
 				<div class="flex auto">
-					<Checkbox v-model="controllerSupport" inputId="controllerSupport" value="controllerSupport"/>
+					<Checkbox v-model="controllerSupport" inputId="controllerSupport" value="controllerSupport" binary disabled/>
 					<label for="controllerSupport">Controller</label>
 				</div>
 			</CheckboxGroup>
@@ -89,7 +91,7 @@
 			<br>
 			<br>
 			<Button
-				label="Add Game To Database"
+				label="Update Game"
 				@click="OnSubmit"
 				:loading="loading"
 			/>
@@ -103,18 +105,20 @@ import {useToast} from 'primevue/usetoast';
 import {Form} from '@primevue/forms';
 import {ref, onMounted} from 'vue';
 import { useField } from 'vee-validate';
-import {getAllTags} from '@/DataAccess/tagDataAccess.ts'
-import {getAllLaunchers} from '@/DataAccess/launcherDataAccess.ts'
-import { addLauncherToGame, addNewGame, addTagToGame } from '@/DataAccess/gameDataAccess.ts';
-import { tag } from '@/lib/models/tag.ts';
-import { game } from '@/lib/models/game.ts';
+import {getAllTags, getGameTags} from '@/DataAccess/tagDataAccess.ts'
+import {getAllLaunchers, getGameLauncher} from '@/DataAccess/launcherDataAccess.ts'
+import { addLauncherToGame, getGameById, addTagToGame, updateGame} from '@/DataAccess/gameDataAccess.ts';
 import router from '@/router';
+import { useRoute } from 'vue-router';
 
 
 const loading = ref(false);
 const allTags = ref();
 const allLaunchers = ref();
 const tagOptions = ref();
+const editGame = ref();
+
+const route = useRoute();
 
 const {value: gameName} = useField('gameName');
 const {value: singleplayer} = useField('singleplayer');
@@ -139,7 +143,8 @@ const OnSubmit = async () =>{
 	if(controllerSupport.value == undefined)
 		controllerSupport.value = false;
 
-	const game = await addNewGame(
+	const updatedGame = await updateGame(
+		route.params.gameId,
 		gameName.value,
 		!!singleplayer.value,
 		!!multiplayer.value,
@@ -151,14 +156,14 @@ const OnSubmit = async () =>{
 		!!controllerSupport.value
 	);
 
-	if(game != null && gameTags.value !== undefined) {
+	if(updatedGame != null && gameTags.value !== undefined) {
 		for (let i = 0; i < gameTags.value.length; i++) {
-			await addTagToGame(game.id, gameTags.value[i].id);
+			await addTagToGame(updatedGame.id, gameTags.value[i].id);
 		}
 	}
 
-	if(game != null && launcher.value !== undefined){
-		await addLauncherToGame(game.id, launcher.value.id);
+	if(updatedGame != null && launcher.value !== undefined){
+		await addLauncherToGame(updatedGame.id, launcher.value.id);
 	}
 
 	await router.push('/');
@@ -167,7 +172,25 @@ const OnSubmit = async () =>{
 onMounted(async () => {
 	allTags.value = await getAllTags();
 	allLaunchers.value = await getAllLaunchers();
+
+	const id = route.params.gameId;
+	editGame.value = await getGameById(id);
+	setData()
+	launcher.value = await getGameLauncher(id);
+	gameTags.value = await getGameTags(id);
 });
+
+function setData() {
+	gameName.value = editGame.value.name;
+	singleplayer.value = editGame.value.singleplayer;
+	multiplayer.value = editGame.value.multiplayer;
+	releaseDate.value = editGame.value.releaseDate;
+	latestUpdate.value = editGame.value.latestUpdate;
+	downloadSize.value = editGame.value.downloadSize;
+	achievementNum.value = editGame.value.achievements;
+	mkSupport.value = editGame.value.mk;
+	controllerSupport.value = editGame.value.controller;
+}
 
 </script>
 

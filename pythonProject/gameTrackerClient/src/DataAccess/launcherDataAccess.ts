@@ -1,7 +1,6 @@
 import {launcher} from '@/lib/models/launcher.ts'
 import {handleError} from 'vue';
 import jwtInterceptor from '@/helpers/http.ts';
-import { tag } from '@/lib/models/tag.ts';
 
 async function addNewLauncher(name: string): Promise<launcher|null>{
 	try{
@@ -22,7 +21,7 @@ async function addNewLauncher(name: string): Promise<launcher|null>{
 	}
 }
 
-async function getAllLaunchers(): Promise<tag[] | null>{
+async function getAllLaunchers(): Promise<launcher[] | null>{
 	try{
 		const res = await jwtInterceptor.get(`api/launcher/getAllLaunchers`);
 		if(res.status == 200){
@@ -43,8 +42,26 @@ async function getAllLaunchers(): Promise<tag[] | null>{
 	}
 }
 
+async function getGameLauncher(gameId): Promise<launcher | null>{
+	try{
+		const res = await jwtInterceptor.get(`api/launcher/getGameLauncher/${gameId}`);
+		if(res.status == 200){
+				return new launcher(Number(res.data.id), res.data.name);
+		}
+		else
+			return null;
+	}
+	catch(ex){
+		if(ex.status == 400 || ex.status == 500)
+			return null;
+		handleError(ex);
+		return null;
+	}
+}
+
 
 export{
 	addNewLauncher,
 	getAllLaunchers,
+	getGameLauncher,
 }

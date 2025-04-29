@@ -12,9 +12,9 @@ gamesUseCase: GamesUseCase = GamesUseCase()
 gameTagsUseCase: GameTagsUseCase = GameTagsUseCase()
 gameLauncherUseCase: GameLauncherUseCase = GameLauncherUseCase()
 
-@games_bp.route('/<string:game_name>', methods=['GET'])
-def get_game(game_name):
-    result, game = gamesUseCase.get_game_by_name(game_name)
+@games_bp.route('/<int:game_id>', methods=['GET'])
+def get_game_by_id(game_id):
+    result, game = gamesUseCase.get_game_by_id(game_id)
     if result:
         return jsonify(game.to_dict()), 200
     return jsonify({'error': 'User not found'}), 500
@@ -46,7 +46,28 @@ def new_game():
     response, dbGame = gamesUseCase.newGame(newGame)
     if response:
         return jsonify(dbGame.to_dict()), 200
-    return jsonify({'error': 'Game not found'}), 404
+    return jsonify({'error': 'Game not found'}), 400
+
+@games_bp.route('/updateGame', methods=['POST'])
+def update_game():
+    data = request.get_json()
+    id = data["id"]
+    name = data["name"]
+    singleplayer = data["singleplayer"]
+    multiplayer = data["multiplayer"]
+    releaseDate = data["releaseDate"]
+    latestUpdate = data["latestUpdate"]
+    downloadSize = data["downloadSize"]
+    achievements = data["achievements"]
+    mkSupport = data["mkSupport"]
+    controllerSupport = data["controllerSupport"]
+    toUpdateGame = Game(name, singleplayer, multiplayer, releaseDate, latestUpdate, downloadSize, achievements, mkSupport, controllerSupport)
+    toUpdateGame.id = id
+
+    response, dbGame = gamesUseCase.updateGame(toUpdateGame)
+    if response:
+        return jsonify(dbGame.to_dict()), 200
+    return jsonify({'error': 'Game not found'}), 400
 
 @games_bp.route('/<int:game_id>/addTag/<int:tag_id>', methods=['POST'])
 def add_tag(game_id, tag_id):

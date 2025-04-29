@@ -35,6 +35,41 @@ async function addNewGame(name: string,
 	}
 }
 
+async function updateGame(id: Number,
+													name: string,
+													singleplayer: boolean,
+													multiplayer: boolean,
+													releaseDate: Date,
+													latestUpdate: Date,
+													downloadSize: number,
+													achievements: number,
+													mk: boolean,
+													controller: boolean): Promise<game|null>{
+	try{
+		const res = await jwtInterceptor.post(`api/games/updateGame`, {
+			id: `${id}`,
+			name: `${name}`,
+			singleplayer: `${singleplayer}`,
+			multiplayer: `${multiplayer}`,
+			releaseDate: `${releaseDate}`,
+			latestUpdate: `${latestUpdate}`,
+			downloadSize: `${downloadSize}`,
+			achievements: `${achievements}`,
+			mkSupport: `${mk}`,
+			controllerSupport: `${controller}`
+		});
+		if(res.status == 200)
+			return res.data;
+		else
+			return null;
+	}catch(ex){
+		if(ex.status == 404)
+			return null;
+		handleError(ex);
+		return ex.response;
+	}
+}
+
 async function addTagToGame(gameId: number, tagId: number): Promise<boolean|string> {
 	try{
 		const res = await jwtInterceptor.post(`api/games/${gameId}/addTag/${tagId}`);
@@ -95,9 +130,42 @@ async function getAllGames(): Promise<game[]|string>{
 	}
 }
 
+async function getGameById(id: number): Promise<game[]|null>{
+	try{
+		const res = await jwtInterceptor.get(`api/games/${id}`)
+		if(res.status == 200){
+			return new game(
+				Number(res.data.id),
+				String(res.data.name),
+				Boolean(res.data.singleplayer),
+				Boolean(res.data.multiplayer),
+				new Date(res.data.releaseDate),
+				new Date(res.data.latestUpdate),
+				Number(res.data.downloadSize),
+				Number(res.data.achievements),
+				Boolean(res.data.mk),
+				Boolean(res.data.controller)
+			);
+		}
+		else{
+			return null;
+		}
+	}
+	catch(ex){
+		if(ex.status == 400 || ex.status == 500){
+			return null;
+		}
+		handleError(ex);
+		return ex.response;
+	}
+}
+
+
 export {
 	addNewGame,
 	addTagToGame,
 	addLauncherToGame,
 	getAllGames,
+	getGameById,
+	updateGame,
 }

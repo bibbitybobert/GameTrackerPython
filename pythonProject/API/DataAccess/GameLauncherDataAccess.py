@@ -21,7 +21,10 @@ class GameLauncherDataAccess:
     def get_launcher_for_game(self, gameId):
         session = Session()
         try:
-            return session.query(GameLauncher).filter(GameLauncher.gameId == gameId).first()
+            gameLauncher = session.query(GameLauncher).filter(GameLauncher.gameId == gameId).first()
+            if gameLauncher is not None:
+                return session.query(Launcher).filter(Launcher.id == gameLauncher.launcherId).first()
+            return None
         except Exception as e:
             print(e)
             return None

@@ -29,6 +29,11 @@ const router = createRouter({
       meta: {hideNav: true}
     },
     {
+      path: '/edit/:gameId',
+      name: 'Edit Game',
+      component: () => import('@/views/EditGameView.vue')
+    },
+    {
       path: '/new',
       children: [
         {
