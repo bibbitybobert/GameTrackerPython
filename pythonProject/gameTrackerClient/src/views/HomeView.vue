@@ -41,7 +41,7 @@
 			</Column>
 			<Column field="mk" header="MK" dataType="boolean" class="boolCol">
 				<template #body="{ data }">
-						<i class="pi" :class="{ 'pi-check-circle text-green-500': data.mk, 'pi-times-circle text-red-400': !data.mk }"></i>
+						<i class="pi" :class="{ 'pi-check-circle text-green-500': data.mk, 'pi-times-circle text-red-400': !data.mk}"></i>
 				</template>
 			</Column>
 			<Column field="controller" header="C" dataType="boolean" class="boolCol">

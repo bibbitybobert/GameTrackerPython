@@ -8,14 +8,14 @@ class Game(Base):
 
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     name = Column(String(255), unique=True, nullable=False)
-    singleplayer = Column(Boolean)
-    multiplayer = Column(Boolean)
+    singleplayer = Column(Integer)
+    multiplayer = Column(Integer)
     releaseDate = Column(DateTime)
     latestUpdate = Column(DateTime)
     downloadSize = Column(Float)
     achievements = Column(Integer)
-    mk = Column(Boolean)
-    controller = Column(Boolean)
+    mk = Column(Integer)
+    controller = Column(Integer)
 
     def __init__(self,
                name,
@@ -29,16 +29,52 @@ class Game(Base):
                controller):
         self.id = None
         self.name = str(name)
-        self.singleplayer = bool(singleplayer)
-        self.multiplayer = bool(multiplayer)
         self.releaseDate = datetime.fromisoformat(releaseDate)
         self.latestUpdate = datetime.fromisoformat(latestUpdate)
         self.downloadSize = float(downloadSize)
         self.achievements = int(achievements)
-        self.mk = bool(mk)
-        self.controller = bool(controller)
+
+        if singleplayer == 'true':
+            self.singleplayer = 1
+        else:
+            self.singleplayer = 0
+
+        if multiplayer == 'true':
+            self.multiplayer = 1
+        else:
+            self.multiplayer = 0
+
+        if mk == 'true':
+            self.mk = 1
+        else:
+            self.mk = 0
+
+        if controller == 'true':
+            self.controller = 1
+        else:
+            self.controller = 0
 
     def to_dict(self):
+        if(self.singleplayer == b'\x01'):
+            self.singleplayer = 1
+        else:
+            self.singleplayer = 0
+
+        if (self.multiplayer == b'\x01'):
+            self.multiplayer = 1
+        else:
+            self.multiplayer = 0
+
+        if (self.mk == b'\x01'):
+            self.mk = 1
+        else:
+            self.mk = 0
+
+        if (self.controller == b'\x01'):
+            self.controller = 1
+        else:
+            self.controller = 0
+
         return {
             "id" : self.id,
             "name" : self.name,
